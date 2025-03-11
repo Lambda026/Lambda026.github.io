@@ -268,13 +268,6 @@ const contactForm = ref({
   email: '',
   message: ''
 });
-
-const submitForm = () => {
-  console.log('提交表单:', contactForm.value);
-  // 此处可调用接口实现提交
-  // 提交后重置表单
-  contactForm.value = { name: '', email: '', message: '' };
-};
 </script>
 
 <template>
