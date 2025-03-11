@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import gsap from 'gsap';
+import { ref, onMounted, onUnmounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+import gsap from 'https://unpkg.com/gsap@3/dist/gsap.min.js';
 
 const text = ref('WeCord');
 const finalText = 'You Chat We Record';
