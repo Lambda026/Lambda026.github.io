@@ -1,7 +1,6 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
-import gsap from 'https://unpkg.com/gsap@3/dist/gsap.min.js';
-
+import { ref, onMounted, onUnmounted } from 'vue';
+import gsap from 'gsap';
 const text = ref('WeCord');
 const finalText = 'You Chat We Record';
 const isAnimating = ref(false);
@@ -348,7 +347,7 @@ const submitForm = () => {
         <h2>联系我们</h2>
         <p>
           如有任何疑问，请发送邮件至
-          <a href="WeCord@gmail.com" style="color: #4F46E5;">contact@wecord.com</a>
+          <a href="WeCord@gmail.com" style="color: #4F46E5;">wecord@bjtu.com</a>
           与我们联系。
         </p>
       </div>
