@@ -638,5 +638,4 @@ canvas {
     padding: 24px 80px;
   }
 }
-
 </style>
