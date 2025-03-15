@@ -572,7 +572,7 @@ canvas {
 
 
 .title {
-  font-size: 5rem;
+  font-size: 4rem;
   font-weight: 700;
   background-image: linear-gradient(45deg, #ffffff, #ddd);
   background-clip: text;
@@ -680,7 +680,7 @@ canvas {
 /* 响应式 */
 @media (min-width: 1600px) {
   .title {
-    font-size: 6rem;
+    font-size: 5rem;
   }
   .subtitle {
     font-size: 2rem;

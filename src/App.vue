@@ -1,12 +1,16 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import {onMounted, onUnmounted, ref} from 'vue';
 import gsap from 'gsap';
-const text = ref('WeCord');
-const finalText = 'You Chat We Record';
+import TextCarousel from "@/components/TextCarousel.vue";
+import OptimizedWaterfallJournal from "@/components/OptimizedWaterfallJournal.vue";
+import NotificationExtractor from "@/components/Notification.vue";
+
+const text = ref('Wecord');
+const finalText = 'We Record';
 const isAnimating = ref(false);
 const letterSpacing = ref('0px');
-const delayBetweenLoops = 1500;
-
+const delayBetweenLoops = 3000;
+const startText = 'Wecord'; // 初始短文本
 onMounted(() => {
   if (window) {
     window.scrollTo({
@@ -208,54 +212,124 @@ const startAnimationLoop = async () => {
   while (true) {
     await animateText();
     await new Promise(resolve => setTimeout(resolve, delayBetweenLoops));
+
   }
 };
 
 const animateText = async () => {
   isAnimating.value = true;
   await expandAndSplit();
+  await new Promise(resolve => setTimeout(resolve, delayBetweenLoops));
   await shrinkSpacing();
-  resetText();
   isAnimating.value = false;
 };
 
 const expandAndSplit = () => {
   return new Promise((resolve) => {
-    let currentIndex = 0;
-    const targetSpacing = 16;
-    const startText = 'WeCord';
+    const startText = "Wecord"; // 初始文本
+    const finalText = "We Record"; // 最终文本
+    const totalDuration = 0.8; // 动画总时长
+    const totalSteps = 4; // 总步骤数
 
-    gsap.to(letterSpacing, {
-      value: `${targetSpacing}px`,
-      duration: 1.5,
-      ease: 'power3.out'
+    // 假设 text 是一个响应式变量
+    text.value = startText;
+
+    // 根据步骤返回当前的文本
+    const computeText = (step) => {
+      if (step < 1) {
+        return startText;
+      } else if (step < 2) {
+        return "We"+" "+"cord"
+      } else if(step<3){
+        return "We"+" "+"ecord";
+      } else {
+        return finalText;
+      }
+    };
+
+    // GSAP timeline 用于同步控制 letterSpacing 动画
+    const tl = gsap.timeline({
+      onComplete: resolve
     });
+    tl.to(letterSpacing, {
+      value: "0px",
+      duration: 0.5,
+      ease: "power3.out"
+    })
+        .to(letterSpacing, {
+          value: "0px",
+          duration: 0.5,
+          ease: "power2.inOut"
+        }, "-=0.5");
 
-    const interval = setInterval(() => {
-      if (currentIndex < startText.length) {
-        text.value = startText.substring(0, currentIndex + 1);
-      } else if (currentIndex < finalText.length) {
-        text.value = finalText.substring(0, currentIndex + 1);
-      }
-      currentIndex++;
-      if (currentIndex > finalText.length) {
-        clearInterval(interval);
-        resolve();
-      }
-    }, 80);
-  });
-};
-
-const shrinkSpacing = () => {
-  return new Promise((resolve) => {
-    gsap.to(letterSpacing, {
-      value: `4px`,
-      duration: 1.2,
-      ease: 'power2.inOut',
+    // 使用 GSAP tween 进行动画
+    gsap.to({ progress: 0 }, {
+      progress: 1,
+      duration: totalDuration,
+      ease: "none",
+      onUpdate: function() {
+        const progress = this.targets()[0].progress;
+        const step = Math.floor(progress * totalSteps);
+        text.value = computeText(step);
+      },
       onComplete: resolve
     });
   });
 };
+
+
+
+
+const shrinkSpacing = () => {
+  return new Promise((resolve) => {
+    const startText = "We Record"; // 初始文本
+    const totalDuration = 0.5; // 动画总时长
+    const totalSteps = 4; // 3 次删除和 1 次替换，共 4 步
+
+    // 假设 text 是一个响应式变量
+    text.value = startText;
+
+    // 根据步骤返回当前的文本
+    const computeText = (step) => {
+      let str = startText;
+      // 第一步：删除原始索引 2 处的字符（第一次删除）
+      if (step >= 1) {
+        str = str.slice(0, 2) + str.slice(3);
+      }
+      // 第二步：再删除新文本中索引 2 的字符（第二次删除）
+      if (step >= 2) {
+        str = str.slice(0, 2) + str.slice(3);
+      }
+      // 第三步：再删除新文本中索引 2 的字符（第三次删除）
+      if (step >= 3) {
+        str = str.slice(0, 2) + str.slice(3);
+      }
+      return str;
+    };
+
+    // 使用 GSAP tween 进行动画
+    gsap.to({ progress: 0 }, {
+      progress: 1,
+      duration: totalDuration,
+      ease: "none",
+      onUpdate: function() {
+        const progress = this.targets()[0].progress;
+        const step = Math.floor(progress * totalSteps);
+        text.value = computeText(step);
+      },
+      onComplete: resolve
+    });
+  });
+};
+
+
+
+
+
+
+
+
+
 
 const resetText = () => {
   text.value = 'WeCord';
@@ -278,7 +352,7 @@ const contactForm = ref({
     <!-- 固定导航栏 -->
     <header class="nav-header">
       <div class="container">
-        <h2 class="logo">WeCord</h2>
+        <h2 class="logo">Wecord</h2>
         <nav>
           <ul>
             <li><a href="#hero">首页</a></li>
@@ -293,33 +367,36 @@ const contactForm = ref({
     <!-- 首页 -->
     <section id="hero" class="hero">
       <div class="content">
-        <h1 class="title" :style="{ letterSpacing: letterSpacing }">{{ text }}</h1>
-        <p class="subtitle">Your conversations, safely stored and easily accessible.</p>
-        <button class="cta-button">Get Started</button>
+        <div id="inside" >
+          <div style="color:#E16363" >Y</div>
+          <div style="color:#FFB74D" >o</div>
+          <div style="color:#9FA8DA" >u</div>
+          <div style="width:30px"></div>
+          <div style="color:#E16363" >C</div>
+          <div style="color:#EC407A" >h</div>
+          <div style="color:#FFCC80" >a</div>
+          <div style="color:#FFFFFF" >t</div>
+
+        </div>
+        <div class="title" :style="{ letterSpacing: letterSpacing }">{{ text }}</div>
+        <TextCarousel/>
+        <button class="cta-button">
+          <svg class="download-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v9m0 0l-3-3m3 3l3-3M12 3v9" />
+          </svg>
+          下载压缩包
+        </button>
+
+
       </div>
     </section>
 
     <!-- 功能区 -->
     <section id="features" class="features">
       <div class="container">
-        <h2>功能</h2>
-        <div class="feature-items">
-          <div class="feature-item">
-            <i class="icon fas fa-lock"></i>
-            <h3>待办事项</h3>
-            <p>根据聊天记录，智能生成待办事项，帮助您更好地规划日程。</p>
-          </div>
-          <div class="feature-item">
-            <i class="icon fas fa-search"></i>
-            <h3>每日手账</h3>
-            <p>自动生成每日手账，让您轻松记录生活点滴与心情感悟。</p>
-          </div>
-          <div class="feature-item">
-            <i class="icon fas fa-cloud-upload-alt"></i>
-            <h3>亲密度图</h3>
-            <p>通过数据生成好友亲密度图，直观展示您与好友之间的亲密关系。</p>
-          </div>
-        </div>
+        <OptimizedWaterfallJournal />
+
+        <NotificationExtractor/>
       </div>
     </section>
 
@@ -381,12 +458,14 @@ canvas {
 
 .features .container,
 .about .container,
-.contact
+.contact,
 .container{
-  position: relative;
-  z-index: 1;
   background: transparent; /* 将背景设置为透明 */
   color: #fff;
+  width:100%;
+  max-width:100%;
+  position:relative;
+  z-index:1;
 }
 
 /* 导航栏 */
@@ -485,8 +564,8 @@ canvas {
   text-align: center;
 }
 .title {
-  font-size: 5rem;
-  font-weight: 700;
+  font-size: 4rem;
+  font-weight: 500;
   background-image: linear-gradient(45deg, #ffffff, #ddd);
   background-clip: text;
   -webkit-background-clip: text;
@@ -500,6 +579,12 @@ canvas {
   margin: 1rem 0 2rem;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
 }
+
+#inside{
+  display: flex;
+  flex-direction: row;
+  font-size: 4rem;
+}
 .cta-button {
   padding: 16px 48px;
   font-size: 1.25rem;
@@ -511,6 +596,7 @@ canvas {
   cursor: pointer;
   box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-top:40px;
 }
 .cta-button:hover {
   transform: translateY(-5px);
@@ -524,8 +610,8 @@ canvas {
 /* 功能区 */
 .features {
   padding: 4rem 0;
-  background: #f9f9f9;
   color: #333;
+  width:100%;
 }
 .features h2 {
   text-align: center;
@@ -538,7 +624,6 @@ canvas {
   gap: 2rem;
 }
 .feature-item {
-  background: #fff;
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0px 4px 16px rgba(0,0,0,0.1);
@@ -554,7 +639,6 @@ canvas {
 /* 关于我们 */
 .about {
   padding: 4rem 0;
-  background: #fff;
   color: #333;
 }
 .about h2 {
@@ -570,7 +654,6 @@ canvas {
 /* 联系我们 */
 .contact {
   padding: 4rem 0;
-  background: #f9f9f9;
   color: #333;
 }
 .contact h2 {
@@ -607,15 +690,14 @@ canvas {
 
 /* 通用容器 */
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  width:100%;
+  margin:0;
 }
 
 /* 响应式 */
 @media (min-width: 1600px) {
   .title {
-    font-size: 6rem;
+    font-size: 4rem;
   }
   .subtitle {
     font-size: 2rem;
